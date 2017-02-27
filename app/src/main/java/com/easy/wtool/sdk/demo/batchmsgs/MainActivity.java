@@ -21,9 +21,11 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
     private List<String> selectedWxIdIndex = new ArrayList<String>();
 
     TextView labelImageFile,labelVoiceFile,labelVideoFile;
-
+    private ListView listViewSelectDialog = null;
+    private boolean [] checks;
+    private AlertDialog selectDialog = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
         labelWxid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
                 //builder.setIcon(R.drawable.ic_launcher);
                 builder.setTitle(radioButtonAll.isChecked()?"选择联系人":(radioButtonFriend.isChecked()? "选择接收好友":"选择接收群"));
                 String content;
@@ -212,20 +217,21 @@ public class MainActivity extends AppCompatActivity {
 
 
                         if (jsonArray.length() > 0) {
-                            final String[] friends = new String[jsonArray.length()];
+                            final String[] friends = new String[jsonArray.length()+1];
+                            friends[0] = "全选";
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                friends[i] = wToolSDK.decodeValue(jsonArray.getJSONObject(i).getString("nickname"));
-                                if (friends[i].equals("")) {
+                                friends[i+1] = wToolSDK.decodeValue(jsonArray.getJSONObject(i).getString("nickname"));
+                                if (friends[i+1].equals("")) {
                                     if (jsonArray.getJSONObject(i).has("displayname")) {
-                                        friends[i] = wToolSDK.decodeValue(jsonArray.getJSONObject(i).getString("displayname"));
-                                        if(friends[i].length()>20) {
-                                            friends[i] = friends[i].substring(0, 20) + "...";
+                                        friends[i+1] = wToolSDK.decodeValue(jsonArray.getJSONObject(i).getString("displayname"));
+                                        if(friends[i+1].length()>20) {
+                                            friends[i+1] = friends[i+1].substring(0, 20) + "...";
                                         }
                                     }
                                 }
                                 if(radioButtonAll.isChecked() && jsonArray.getJSONObject(i).has("displayname"))
                                 {
-                                    friends[i] = "(群)"+friends[i];
+                                    friends[i+1] = "(群)"+friends[i+1];
                                 }
                             }
 
@@ -236,7 +242,8 @@ public class MainActivity extends AppCompatActivity {
                              * 需要传递一个boolean[]数组进去，其长度要和第一个参数的长度相同，例如 {true, false, false, true};
                              * 第三个参数给每一个多选项绑定一个监听器
                              */
-                            boolean [] checks = new boolean[jsonArray.length()];
+
+                            checks = new boolean[jsonArray.length()+1];
                             String ids = toWxId;
                             if(toWxId.equals(""))
                             {
@@ -247,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                             for(int i=0;i<checks.length;i++)
                             {
                                 checks[i] = false;
+                                /*
                                 for(int j=0;j<jsonArray1.length();j++)
                                 {
                                     if(jsonArray1.getString(j).equals(wToolSDK.decodeValue(jsonArray.getJSONObject(i).getString("wxid"))))
@@ -255,28 +263,9 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     }
                                 }
+                                */
                             }
-                            builder.setMultiChoiceItems(friends, checks, new DialogInterface.OnMultiChoiceClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                    if(isChecked)
-                                    {
-                                        if(!selectedWxIdIndex.contains(String.valueOf(which)))
-                                        {
-                                            selectedWxIdIndex.add(String.valueOf(which));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if(selectedWxIdIndex.contains(String.valueOf(which)))
-                                        {
-                                            selectedWxIdIndex.remove(String.valueOf(which));
-                                        }
-                                    }
-
-                                }
-                            });
-                            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            final DialogInterface.OnClickListener onOkClickListener = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
@@ -289,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                                                     nicknames += ",";
                                                 }
                                                 toWxId += "\"" + wToolSDK.decodeValue(jsonArray.getJSONObject(Integer.parseInt(selectedWxIdIndex.get(i))).getString("wxid")) + "\"";
-                                                nicknames += friends[Integer.parseInt(selectedWxIdIndex.get(i))];
+                                                nicknames += friends[Integer.parseInt(selectedWxIdIndex.get(i))+1];
                                             }
                                             if (nicknames.length() > 50) {
                                                 nicknames = nicknames.substring(0, 50) + "...";
@@ -306,14 +295,110 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                 }
-                            });
+                            };
+                            final DialogInterface.OnMultiChoiceClickListener onMultiChoiceClickListener = new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+                                    if(which==0)
+                                    {
+                                        if(isChecked) {
+                                            SparseBooleanArray sb;
+                                            sb = listViewSelectDialog.getCheckedItemPositions();
+                                            for (int i = 1; i < checks.length; i++) {
+                                                if (sb.get(i) == false) {
+                                                    listViewSelectDialog.setItemChecked(i, isChecked);
+                                                }
+
+
+                                                if (!selectedWxIdIndex.contains(String.valueOf(i-1))) {
+                                                    selectedWxIdIndex.add(String.valueOf(i-1));
+                                                }
+
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            SparseBooleanArray sb;
+                                            sb = listViewSelectDialog.getCheckedItemPositions();
+                                            for (int i = 1; i < checks.length; i++) {
+                                                if (sb.get(i) == true) {
+                                                    listViewSelectDialog.setItemChecked(i, isChecked);
+                                                }
+                                                if (selectedWxIdIndex.contains(String.valueOf(i-1))) {
+                                                    selectedWxIdIndex.remove(String.valueOf(i-1));
+                                                }
+                                            }
+                                            //下面这个必须加，不然如果是单独勾选的，全不选时取消不了
+                                            for (int i = 0; i < checks.length; i++) {
+                                                checks[i] = false;
+                                            }
+                                            listViewSelectDialog.clearChoices();
+                                        }
+
+
+                                    }
+                                    else {
+                                        checks[which] = isChecked;
+                                        //Log.d(LOG_TAG,"select "+which+","+isChecked);
+                                        if (isChecked) {
+
+                                            if (!selectedWxIdIndex.contains(String.valueOf(which-1))) {
+                                                selectedWxIdIndex.add(String.valueOf(which-1));
+                                            }
+
+                                        } else {
+
+                                            if (selectedWxIdIndex.contains(String.valueOf(which-1))) {
+                                                selectedWxIdIndex.remove(String.valueOf(which-1));
+                                            }
+
+                                        }
+                                        SparseBooleanArray sb;
+                                        sb = listViewSelectDialog.getCheckedItemPositions();
+                                        if(selectedWxIdIndex.size()==jsonArray.length())
+                                        {
+                                            if (sb.get(0) == false) {
+                                                listViewSelectDialog.setItemChecked(0, true);
+                                            }
+                                            checks[0] = true;
+                                        }
+                                        else if(selectedWxIdIndex.size()==0)
+                                        {
+                                            if (sb.get(0) == true) {
+                                                listViewSelectDialog.setItemChecked(0, false);
+                                            }
+                                            checks[0] = false;
+                                        }
+                                    }
+                                    //builder.setPositiveButton("确定", selectedWxIdIndex.size()>0?onOkClickListener:null);
+                                    Button button = selectDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                    if(button!=null)
+                                    {
+                                        button.setEnabled(selectedWxIdIndex.size()>0);
+                                    }
+                                }
+                            };
+                            builder.setMultiChoiceItems(friends, checks, onMultiChoiceClickListener);
+
+                            builder.setPositiveButton("确定", onOkClickListener);
                             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
                                 }
                             });
-                            builder.show();
+                            //builder.show();
+                            selectDialog = builder.create();
+                            selectDialog.show();
+                            listViewSelectDialog = selectDialog.getListView();
+
+                            Button button = selectDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            if(button!=null)
+                            {
+                                button.setEnabled(false);
+                            }
 
                         } else {
                             text = "无联系人";

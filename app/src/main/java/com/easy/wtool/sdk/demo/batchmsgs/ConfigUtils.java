@@ -10,11 +10,12 @@ import android.content.SharedPreferences;
 public class ConfigUtils {
     public static final String KEY_AUTHCODE = "AuthCode";
     public static final String KEY_WXID = "WxId";
-    final private String PROFILE_NAME = "wtoolsdkdemo";
+    private String PROFILE_NAME = "wtoolsdkdemorobot";
     private Context context;
 
     public ConfigUtils(Context context) {
         this.context = context;
+        PROFILE_NAME = context.getPackageName();
     }
 
     /**
@@ -22,24 +23,28 @@ public class ConfigUtils {
      * @param key  参数名
      * @param value   参数值
      */
-    public void save(String key, String value) {
+    public void save(String section,String key, String value) {
         //获得SharedPreferences对象
-        SharedPreferences preferences = context.getSharedPreferences(PROFILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(PROFILE_NAME+"."+section, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(key, value);
         editor.commit();
     }
-
+    public void save(String key, String value) {
+        save("params",key,value);
+    }
     /**
      * 获取参数
      * @return
      */
-    public String get(String key,String defvalue) {
+    public String get(String section,String key,String defvalue) {
 
-        SharedPreferences preferences = context.getSharedPreferences(PROFILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(PROFILE_NAME+"."+section, Context.MODE_PRIVATE);
         return preferences.getString(key, defvalue);
     }
-
+    public String get(String key,String defvalue){
+        return get("params",key,defvalue);
+    }
 
 
 
