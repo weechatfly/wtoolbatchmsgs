@@ -578,6 +578,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && data != null) {
             String v_path = "";
+            /*
             Cursor cursor = null;
             try {
                 try {
@@ -621,7 +622,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            if (requestCode == RESULT_IMAGE) {
+            */
+            try
+            {
+                v_path = UriUtils.getPath(mContext,data.getData());
+                if(v_path==null)
+                {
+                    v_path = "";
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+            if(v_path.length()>0) {
+                if (requestCode == RESULT_IMAGE) {
 
                 /*
                 Uri selectedImage = data.getData();
@@ -638,29 +653,32 @@ public class MainActivity extends AppCompatActivity {
                 toImageFile = picturePath;
                 */
 
-                //LogUtil.e("v_path="+v_path);
-                //LogUtil.e("v_size="+v_size);
-                //LogUtil.e("v_name="+v_name);
-                toImageFile = v_path;
-                labelImageFile.setText(DEF_IMAGEFILE + "：" + toImageFile);
+                    //LogUtil.e("v_path="+v_path);
+                    //LogUtil.e("v_size="+v_size);
+                    //LogUtil.e("v_name="+v_name);
+                    toImageFile = v_path;
+                    labelImageFile.setText(DEF_IMAGEFILE + "：" + toImageFile);
 
 
+                } else if (requestCode == RESULT_VOICE) {
+
+
+                    toVoiceFile = v_path;
+                    labelVoiceFile.setText(DEF_VOICEFILE + "：" + toVoiceFile);
+
+
+                } else if (requestCode == RESULT_VIDEO) {
+
+
+                    toVideoFile = v_path;
+                    labelVideoFile.setText(DEF_VIDEOFILE + "：" + toVideoFile);
+
+
+                }
             }
-            else if (requestCode == RESULT_VOICE) {
-
-
-                toVoiceFile = v_path;
-                labelVoiceFile.setText(DEF_VOICEFILE + "：" + toVoiceFile);
-
-
-            }
-            else if (requestCode == RESULT_VIDEO) {
-
-
-                toVideoFile = v_path;
-                labelVideoFile.setText(DEF_VIDEOFILE + "：" + toVideoFile);
-
-
+            else
+            {
+                Toast.makeText(mContext, "无法获取选择的文件路径", Toast.LENGTH_LONG).show();
             }
         }
     }
