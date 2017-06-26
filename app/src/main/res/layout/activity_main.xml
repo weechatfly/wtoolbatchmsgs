@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical">
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
@@ -21,11 +25,36 @@
         android:layout_alignParentStart="true"
         android:background="?attr/colorButtonNormal" />
     <TextView
+        android:text="AppId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewAppId"
+        android:layout_below="@+id/textViewPrompt"
+
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="?attr/colorButtonNormal"
+        android:layout_marginTop="12dp"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/editAppId"
+        android:layout_below="@+id/textViewAppId"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <TextView
         android:text="授权码"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textViewAuthCode"
-        android:layout_below="@+id/textViewPrompt"
+        android:layout_below="@+id/editAppId"
 
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -236,3 +265,4 @@
 
 
 </RelativeLayout>
+</ScrollView>

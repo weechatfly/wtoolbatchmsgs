@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
  */
 
 public class ConfigUtils {
+    public static final String KEY_APPID = "AppId";
     public static final String KEY_AUTHCODE = "AuthCode";
     public static final String KEY_WXID = "WxId";
     private String PROFILE_NAME = "wtoolsdkdemorobot";

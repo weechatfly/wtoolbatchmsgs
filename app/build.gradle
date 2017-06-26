@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 24
         versionCode 1
-        versionName "1.0.0.1"
+        versionName "1.0.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -30,7 +30,7 @@ android {
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
 
-                def fileName = "微信群发-wtoolsdkDemo.apk"
+                def fileName = "微控群发示例.apk"
 
                 output.outputFile = new File(outputFile.parent, fileName)
             }
