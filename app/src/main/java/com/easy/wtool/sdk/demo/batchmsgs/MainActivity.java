@@ -547,7 +547,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent();//Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                intent.setType("image/*");
+                //intent.setType("image/*");
+                intent.setType("audio/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(intent, RESULT_IMAGE);
             }
@@ -853,6 +854,7 @@ public class MainActivity extends AppCompatActivity {
                     jsonObject.getJSONObject("content").put("videothumbfile", toVideoThumbFile);
                     jsonObject.getJSONObject("content").put("duration",60);
                 }
+                jsonObject.getJSONObject("content").put("timeout", -1);
                 currentToIndex++;
                 String result = wToolSDK.sendTask(jsonObject.toString());
                 try {
